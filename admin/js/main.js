@@ -37,7 +37,7 @@ function fetch_data(query, page, id_name){
             if(this.readyState == 4 && this.status == 200){
                 document.getElementById(id_name).innerHTML = this.responseText;
             } else {
-                document.getElementById(id_name).innerHTML = '<img src="loading.gif" />';
+                document.getElementById(id_name).innerHTML = '<img src="https://raw.githubusercontent.com/arhex-labs/ecommerce/main/loading.gif" />';
             }
         };
         var q = page + "?query=" + query;
@@ -75,7 +75,7 @@ function fetch_orders(query, page, id_name){
             if(this.readyState == 4 && this.status == 200){
                 document.getElementById(id_name).innerHTML = this.responseText;
             } else {
-                document.getElementById(id_name).innerHTML = '<img src="../img/loading.gif" />';
+                document.getElementById(id_name).innerHTML = '<img src="https://raw.githubusercontent.com/arhex-labs/ecommerce/main/loading.gif" />';
             }
         };
         var q = page + "?query=" + query;
