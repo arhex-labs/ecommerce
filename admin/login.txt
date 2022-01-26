@@ -19,7 +19,7 @@
 <body>
     <section>
         <div class="imgBx">
-            <img src="img/bg.jpg" alt="">
+            <img src="https://github.com/arhex-labs/ecommerce/blob/main/admin/img/bg.jpg" alt="">
             <div class="heading">
                 <h2>ARHEX</h2>
             </div>
