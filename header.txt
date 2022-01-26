@@ -22,7 +22,7 @@
     <?php } ?>
     <title><?php echo $title; ?> | <?php echo $page_info[0]['page_info_title']; ?></title>
     <script>
-        <?php require MAIN_URL; ?>js/main.js"; ?>
+        <?php require MAIN_URL."js/main.js"; ?>
     </script>
 </head>
 <body>
