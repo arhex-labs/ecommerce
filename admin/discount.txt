@@ -1,0 +1,64 @@
+<?php
+    $title = 'Discount';
+    require 'header.php';
+?>
+        <main>
+            <div class="container">
+                <h3>Add Discount</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Select Category</span>
+                            <select name="cat" id="cat" onchange="fetch_option(this.value, 'pro.php', 'pro')" required>
+                                <option value="">Select Category</option>
+                                <?php
+                                    $cat = $db->select('categories');
+                                    foreach($cat as $key){
+                                ?>
+                                    <option value="<?php echo $key['categories_id']; ?>"><?php echo $key['categories_title']; ?></option>
+                                <?php
+                                    }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="inputBx">
+                            <span>Select Product</span>
+                            <select name="pro" id="pro" required></select>
+                        </div>
+                        <div class="inputBx">
+                            <span>Discount Value (PKR)</span>
+                            <input type="number" name="discount" id="discount" placeholder="Enter Discount Value (PKR)" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" value="Add discount" name="add_discount">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container">
+                <h3>View Discount</h3><hr><br>
+                <?php
+                    $row = $db->select('product_discount');
+                    foreach($row as $key){
+                ?>
+                <div class="entry" style="text-align: center;">
+                    <p><b>Product Title: </b><?php echo get_value('products' ,$key['product_discount_pro_id'], 'products_title'); ?></p>
+                    <p><b>Category Title: </b><?php echo get_value('categories', get_value('products' ,$key['product_discount_pro_id'], 'products_category'), 'categories_title'); ?></p>
+                    <p><b>Discount: </b>PKR <?php echo $key['product_discount_title']; ?></p><br>
+                    <form action="" method="POST" onsubmit="return confirm('Delete Discount?');">
+                        <input type="hidden" name="id" value="<?php echo $key['product_discount_id']; ?>">
+                        <button name="delete_product_discount" type="submit"><i class="fa fa-trash"></i></button>
+                    </form>
+                </div>
+                <?php
+                    }
+                ?>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

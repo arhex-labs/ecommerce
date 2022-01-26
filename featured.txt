@@ -1,0 +1,10 @@
+
+<section id="trending" style="margin-top: 20px;">
+    <h3 class="heading">Featured Products</h3>
+</section>
+<script>
+    fetch_data('featured', 'fp.php', 'featured');
+</script>
+<div class="trending" id="featured">
+    
+</div>

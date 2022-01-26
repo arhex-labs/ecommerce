@@ -1,0 +1,32 @@
+
+
+    <h3 class="heading">Categories</h3><nav class="categories">
+    <?php
+        if(!isset($_GET['show'])){
+            $row = $db->select('categories', NULL, NULL, NULL, NULL, NULL, 3);
+        } else if($_GET['show'] == 'all'){
+            $row = $db->select('categories');
+        }
+        foreach($row as $key){
+    ?>
+        <a href="product.php?category=<?php echo $key['categories_id']; ?>">
+            <div class="item">
+                <div class="content" style="background-image: url('img/<?php echo $key['categories_image']; ?>');">
+                    <h3><?php echo $key['categories_title']; ?></h3>
+                </div>
+            </div>
+        </a>
+    <?php
+        }
+    ?>
+        <?php
+            if($_GET['show'] != "all" && !empty($row)){
+        ?>
+        <form action="categories.php" method="get">
+            <input type="hidden" name="show" value="all">
+            <button type="submit">Show All</button>
+        </form>
+        <?php
+            }
+        ?>
+</nav>

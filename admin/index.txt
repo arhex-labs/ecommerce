@@ -1,0 +1,66 @@
+<?php
+    $title = 'Dashboard';
+    require 'header.php';
+?>
+        <main>
+            <div class="cards">
+                <div class="card-single">
+                    <div>
+                        <h1><?php $total_products = $db->select('products'); echo count($total_products);  ?> Product(s)</h1>
+                        <span>Total Product(s)</span>
+                    </div>
+                    <div>
+                        <span class="fab fa-product-hunt"></span>
+                    </div>
+                </div>
+                <div class="card-single">
+                    <div>
+                        <h1><?php $total_orders = $db->select('orders'); echo count($total_orders);  ?> Order(s)</h1>
+                        <span>Total Order(s)</span>
+                    </div>
+                    <div>
+                        <span class="fab fa-first-order"></span>
+                    </div>
+                </div>
+                <div class="card-single">
+                    <div>
+                        <?php $orderp = array('orders_status'=>'1') ?>
+                        <h1><?php $total_orders = $db->select('orders', NULL, $orderp); echo count($total_orders);  ?> Order(s)</h1>
+                        <span>Pending Order(s)</span>
+                    </div>
+                    <div>
+                        <span class="fa fa-pause-circle"></span>
+                    </div>
+                </div>
+            </div><br>
+
+            <div class="entry" style="width: 100%;">
+            <?php $ordern = array('orders_status'=>'0') ?>
+                <h3>New Orders(<?php $total_ordern = $db->select('orders', NULL, $ordern); echo count($total_ordern);  ?>)</h3><hr><br>
+                <?php
+                if(empty($total_ordern)){
+                ?>
+                <div class="entry">
+                    <p>No New Orders!</p>
+                </div>
+                <?php
+                }
+                    foreach($total_ordern as $order){
+                ?>
+                <div class="entry">
+                    <p><b>Name: </b><?php echo $order['orders_name']; ?></p>
+                    <p><b>Phone: </b><?php echo $order['orders_phone']; ?></p>
+                    <p><b>Address: </b><?php echo $order['orders_address']; ?></p>
+                    <form action="view_order.php" method="get">
+                        <input type="hidden" name="orders_id" value="<?php echo $order['orders_id']; ?>">
+                        <input type="submit" value="View">
+                    </form>
+                </div>
+                <?php
+                    }
+                ?>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

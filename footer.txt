@@ -1,0 +1,39 @@
+
+<footer>
+    <section>
+        <div class="logo">
+            <img src="img/<?php echo $page_info[0]['page_info_logo']; ?>" alt="Click & Pick Logo">
+        </div>
+    </section>
+    <section>
+        <div class="contact">
+            <h2>Contact Us</h2>
+            <a href="#"><p><i class="fa fa-map-marker"></i> &nbsp; <?php echo $page_info[0]['page_info_address']; ?></p></a>
+            <a href="tel:<?php echo $page_info[0]['page_info_phone']; ?>"><p><i class="fa fa-phone"></i> &nbsp; <?php echo $page_info[0]['page_info_phone']; ?></p></a>
+        </div>
+    </section>
+    <section>
+        <div class="contact">
+            <h2>Follow Us</h2>
+            <a href="<?php echo $page_info[0]['page_info_fb']; ?>"><i class="fab fa-facebook-f"></i></a>
+            <a href="<?php echo $page_info[0]['page_info_insta']; ?>"><i class="fab fa-instagram"></i></a>
+        </div>
+    </section>
+    <section>
+        <div class="contact">
+            <h2>Contact Developer</h2>
+            <a href="mailto:arhexlabs@gmail.com"><p><i class="fa fa-envelope"></i> &nbsp; ARHEX LABS</p></a>
+            <a href="tel:03134386826"><p><i class="fa fa-phone"></i> &nbsp; 03134386826</p></a>
+        </div>
+    </section>
+</footer>
+
+<div class="ownership"><a href="https://arhexlabs.000webhostapp.com/" target="_blank"><b>POWERED BY: </b>ARHEX</a></div>
+
+
+<div class="final">
+    Copyright &copy; 2021 - <?php echo date('Y'); ?> | Proudly Powered By ARHEX LABS
+</div>
+
+</body>
+</html>

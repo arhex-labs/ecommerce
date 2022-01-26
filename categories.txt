@@ -1,0 +1,8 @@
+
+<?php
+    $title = "Categories";
+    require "header.php";
+    require "margin.php";
+    require "cats.php";
+    require "footer.php";
+?>

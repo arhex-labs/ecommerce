@@ -1,0 +1,61 @@
+<?php
+    $title = 'Featured';
+    require 'header.php';
+?>
+        <main>
+            <div class="container">
+                <h3>Feature a Product</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Select Category</span>
+                            <select name="cat" id="cat" onchange="fetch_option(this.value, 'pro.php', 'pro')" required>
+                                <option value="">Select Category</option>
+                                <?php
+                                    $cat = $db->select('categories');
+                                    foreach($cat as $key){
+                                ?>
+                                    <option value="<?php echo $key['categories_id']; ?>"><?php echo $key['categories_title']; ?></option>
+                                <?php
+                                    }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="inputBx">
+                            <span>Select Product</span>
+                            <select name="pro" id="pro" required></select>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="add_featured" value="Add To Featured">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container">
+                <h3>View Featured Products</h3><hr><br>
+                <?php
+                    $row = $db->select('featured');
+                    foreach($row as $key){
+                ?>
+                <div class="entry" style="text-align: center;">
+                    <p><?php echo get_value('products', $key['featured_pid'], 'products_title'); ?> (<?php echo get_value('categories', get_value('products', $key['featured_pid'], 'products_category'), 'categories_title'); ?>)</p><hr><br>
+                    <img src="../img/<?php echo get_value('products', $key['featured_pid'], 'products_image'); ?>" alt="<?php echo get_value('products', $key['featured_pid'], 'products_image'); ?>" width="200px"><br>
+                    <p><b>PKR</b> <?php echo get_value('products', $key['featured_pid'], 'products_price'); ?></p>
+                    <p><b>In Stock: </b> <?php echo get_value('products', $key['featured_pid'], 'products_quantity'); ?></p>
+                    <form action="" method="post" onsubmit="return confirm('Delete Featured Product?');">
+                        <input type="hidden" name="id" value="<?php echo $key['featured_id']; ?>">
+                        <button type="submit" name="delete_featured"><i class="fa fa-trash"></i></button>
+                    </form>
+                </div>
+                <?php
+                    }
+                ?>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

@@ -1,0 +1,140 @@
+
+<?php
+
+    require 'admin/core/config.php';
+    require 'admin/core/MyDbHandler.php';
+
+    error_reporting(0);
+
+    $db = new MyDbHandler(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $upload_file_name = '';
+
+    session_start();
+
+    function clean($string) {
+        $string = str_replace(' ', '-', $string);
+        return preg_replace('/[^A-Za-z0-9\-]/', '', $string);
+    }
+
+    if(!isset($_SESSION['cart'])){
+        $_SESSION['cart'] = array();
+    }
+
+    function upload_image($name){
+        global $upload_file_name;
+        $file_name = $_FILES[$name]['name'];
+        $file_tmp = $_FILES[$name]['tmp_name'];
+        $file_size = $_FILES[$name]['size'];
+        $file_type = $_FILES[$name]['type'];
+        $file_ext = strtolower(end(explode('.', $file_name)));
+        $extensions = array('jpeg', 'jpg', 'png');
+        if(in_array($file_ext,$extensions)=== false){
+            $error="extension not allowed, please choose a JPEG or PNG file.";
+        }
+        
+        if($file_size > 10097152){
+            $error='IMAGE size must be less than 10 MB.';
+        }
+        
+        if(empty($error)==true){
+            $file_name = date('d-m-y').rand(0,99999999).$file_name;
+            $upload_file_name = strtolower($file_name);
+            if(move_uploaded_file($file_tmp,"../img/".$upload_file_name)){
+                return 1;
+            }
+            $error = "Failed to move file.";
+            return 0;
+        }
+        return 0;
+    }
+
+    function get_value($table_name, $id, $field_name){
+        global $db;
+        $row = $db->query_fetch("SELECT * FROM ".$table_name." WHERE ".$table_name."_id = '".$id."'");
+        return $row[0][$field_name];
+    }
+
+    if(isset($_POST['add_to_cart']) && $_SERVER['REQUEST_METHOD'] == "POST"){
+        $id = $_POST['pid'];
+        $qty = $_POST['pqty'];
+        $color = $_POST['pclr'];
+        $size = $_POST['psize'];
+        $items = array($id, $qty, $color, $size);
+        array_push($_SESSION['cart'], $items);
+        setcookie('cart', json_encode($_SESSION['cart']), time()+(6*30*24*3600));
+    }
+
+    if(isset($_POST['delete_cart'])){
+        $id = $_POST['delete_cart'];
+        unset($_SESSION['cart'][$id]);
+        unset($data[$id]);
+        setcookie('cart', json_encode($_SESSION['cart']), time()+(6*30*24*3600));
+    }
+
+    if(isset($_POST['empty_cart'])){
+        unset($_SESSION['cart']);
+    }
+
+    if(isset($_POST['place_order'])){
+        $name = $_POST['name'];
+        $phone = $_POST['phone'];
+        $address = $_POST['address'];
+        $data = json_decode($_COOKIE['cart'], true);
+        foreach($data as $key=>$value){
+            $pid = $data[$key][0];
+            $pqty = $data[$key][1];
+            $pclr = $data[$key][2];
+            $psize = $data[$key][3];
+            if(empty($psize) and empty($pclr)){
+                $data_list = array(
+                    'cart_pro_id'=>$pid,
+                    'cart_quantity'=>$pqty,
+                    'cart_order_id'=>0
+                );
+            } else if(empty($psize)){
+                $data_list = array(
+                    'cart_pro_id'=>$pid,
+                    'cart_quantity'=>$pqty,
+                    'cart_pro_color'=>$pclr,
+                    'cart_order_id'=>0
+                );
+            } else if(empty($pclr)){
+                $data_list = array(
+                    'cart_pro_id'=>$pid,
+                    'cart_quantity'=>$pqty,
+                    'cart_pro_size'=>$psize,
+                    'cart_order_id'=>0
+                );
+            } else {
+                $data_list = array(
+                    'cart_pro_id'=>$pid,
+                    'cart_quantity'=>$pqty,
+                    'cart_pro_color'=>$pclr,
+                    'cart_pro_size'=>$psize,
+                    'cart_order_id'=>0
+                );
+            }
+            $db->insert('cart', $data_list);
+        }
+        $data = array(
+            'orders_name'=>$name,
+            'orders_phone'=>$phone,
+            'orders_address'=>$address,
+            'orders_status'=>'0'
+        );
+        $db->insert('orders', $data);
+        $last_id = $db->query_fetch('SELECT * FROM `orders` ORDER BY orders_id DESC LIMIT 1');
+        $id = $last_id[0]['orders_id'];
+        $data = array(
+            'cart_order_id'=>$id
+        );
+        $cond = array(
+            'cart_order_id'=>'0'
+        );
+        $db->update('cart', $data, $cond);
+        echo "<script>alert('Order Placed.');</script>";
+        unset($_SESSION['cart']);
+    }
+    
+
+?>

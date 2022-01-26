@@ -1,0 +1,327 @@
+<?php
+    class MyDbHandler{
+
+        private $con, $db_host, $db_user, $db_pass, $db_name;
+
+        public function __construct()
+        {
+            $args = func_get_args();
+            switch(sizeof($args)){
+                case 3:
+                    $this->construct3($args[0], $args[1], $args[2]);
+                    break;
+                case 4:
+                    $this->construct4($args[0], $args[1], $args[2], $args[3]);
+                    break;
+            }
+        }
+
+        public function construct3($host, $username, $password){
+            $this->set_db_host($host);
+            $this->set_db_user($username);
+            $this->set_db_pass($password);
+            $this->set_dsn("mysql:host=".$this->get_db_host());
+            $this->create_db();
+            $this->create_tables();
+        }
+
+        public function construct4($host, $username, $password, $db){
+            $this->set_db_host($host);
+            $this->set_db_user($username);
+            $this->set_db_pass($password);
+            $this->set_db_name($db);
+            $this->set_dsn("mysql:host=".$this->get_db_host().";dbname=".$this->get_db_name());
+            $this->create_tables();
+        }
+
+        public function create_db(){
+            $this->start_connection();
+            $query = "CREATE DATABASE IF NOT EXISTS arhex";
+            try{
+                $this->con->exec($query);
+                $this->set_db_name('arhex');
+                $this->set_dsn("mysql:host=".$this->get_db_host().";dbname=".$this->get_db_name());
+                $this->con = new PDO($this->get_dsn(), $this->get_db_user(), $this->get_db_pass());
+            } catch (PDOException $e){
+                die("UNABLE TO CREATE DATABASE.");
+            }
+            $this->close_connection();
+        }
+
+        public function start_connection(){
+            try {
+                $this->con = new PDO($this->get_dsn(), $this->get_db_user(), $this->get_db_pass());
+                $this->con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $e) {
+                die("UNABLE TO CONNECT TO DATABASE.");
+            }
+        }
+
+        public function close_connection(){
+            $this->con = null;
+        }
+
+        public function create_tables(){
+            $this->start_connection();
+            $queries = array();
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `categories`(
+                categories_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                categories_title TEXT,
+                categories_image TEXT
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `banners`(
+                banners_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                banners_link TEXT,
+                banners_image TEXT
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `page_info`(
+                page_info_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                page_info_title TEXT,
+                page_info_logo TEXT,
+                page_info_address TEXT,
+                page_info_phone TEXT,
+                page_info_fb TEXT,
+                page_info_insta TEXT
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `featured`(
+                featured_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                featured_pid INT(80)
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `products`(
+                products_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                products_title TEXT,
+                products_price TEXT,
+                products_quantity TEXT,
+                products_category INT(80),
+                products_image TEXT,
+                products_description TEXT
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `product_colors`(
+                product_colors_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                product_colors_pro_id INT(80),
+                product_colors_title TEXT
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `product_size`(
+                product_size_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                product_size_pro_id INT(80),
+                product_size_title TEXT
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `product_discount`(
+                product_discount_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                product_discount_pro_id INT(80),
+                product_discount_title TEXT
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `product_image`(
+                product_image_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                product_image_pro_id INT(80),
+                product_image_link TEXT
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `cart`(
+                cart_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                cart_pro_id INT(80),
+                cart_quantity INT(80),
+                cart_pro_color INT(80),
+                cart_pro_size INT(80),
+                cart_order_id INT(80)
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `selling`(
+                selling_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                selling_pro_id INT(80),
+                selling_sold INT(80)
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `users`(
+                users_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                users_username TEXT,
+                users_password TEXT
+            )");
+            array_push($queries, "CREATE TABLE IF NOT EXISTS `orders`(
+                orders_id INT(80) AUTO_INCREMENT PRIMARY KEY,
+                orders_name TEXT,
+                orders_phone TEXT,
+                orders_address TEXT,
+                orders_status INT(80)
+            )");
+            foreach($queries as $query){
+                try {
+                    $this->con->exec($query);
+                } catch (PDOException $e) {
+                    die("UNABLE TO CREATE TABLES");
+                }
+            }
+            $this->close_connection();
+        }
+
+        public function insert($table_name, $data){
+            $cols = array();
+            $vals = array();
+            foreach($data as $key => $val){
+                array_push($cols,$key);
+                array_push($vals,$val."'");
+            }
+            $query = "INSERT INTO ".$table_name." (".implode(", ",$cols).") VALUES ('".implode(", '", $vals).")";
+            try {
+                $this->start_connection();
+                $this->con->exec($query);
+                $this->close_connection();
+            } catch (PDOException $e) {
+                echo "FAILED TO INSERT";
+            }
+        }
+
+        public function select($table_name, $col = NULL, $condition = NULL, $op = NULL, $order_by = NULL, $order = NULL, $limit = NULL){
+            $query = "SELECT";
+            if($col != NULL){
+                $cols = implode(", ", $col);
+                $query = $query." ".$cols." FROM";
+            } else {
+                $query = $query." * FROM";
+            }
+            $query = $query." ".$table_name;
+            if($condition != NULL){
+                $cond = array();
+                foreach($condition as $key => $val){
+                    array_push($cond, $key."='".$val."'");
+                }
+                if($op != NULL){
+                    $query = $query." WHERE ".implode(" ".$op." ", $cond);
+                } else {
+                    $query = $query." WHERE ".implode(" AND ", $cond);
+                }
+            }
+            if($order_by != NULL){
+                $query = $query." ORDER BY ".$order_by;
+            }
+            if($order != NULL && $order_by != NULL){
+                $query = $query." ".$order;
+            }
+            if($limit != NULL){
+                $query = $query." LIMIT ".$limit;
+            }
+            try {
+                $this->start_connection();
+                $res = $this->con->query($query);
+                $result = array();
+                while($row = $res->fetch()){
+                    array_push($result, $row);
+                }
+                $this->close_connection();
+                return $result;
+            } catch (PDOException $e) {
+                die("UNABLE TO SELECT");
+            }
+        }
+
+        public function update($table_name, $col, $condition){
+            $query = "UPDATE ".$table_name." SET ";
+            $cols = array();
+            foreach($col as $key=>$val){
+                array_push($cols, $key."='".$val."'");
+            }
+            $query = $query.implode(", ",$cols)." WHERE ";
+            $cond = array();
+            foreach($condition as $key=>$val){
+                array_push($cond, $key."='".$val."'");
+            }
+            $query = $query.implode(", ", $cond);
+            try{
+                $this->start_connection();
+                $this->con->exec($query);
+                $this->close_connection();
+            } catch(PDOException $e){
+                die("UNABLE TO UPDATE");
+            }
+        }
+
+        public function delete($table_name, $condition, $op = NULL){
+            $cond = array();
+            $c = '';
+            foreach($condition as $key=>$val){
+                array_push($cond, $key."='".$val."'");
+            }
+            if($op != NULL){
+                $c = implode(" ".$op." ", $cond);
+            } else {
+                $c = implode(" AND ", $cond);
+            }
+            $query = "DELETE FROM ".$table_name." WHERE ".$c."";
+            try {
+                $this->start_connection();
+                $this->con->exec($query);
+                $this->close_connection();
+            } catch (PDOException $e) {
+                die("UNABLE TO DELETE");
+            }
+        }
+
+        public function query($query){
+            try {
+                $this->start_connection();
+                $this->con->exec($query);
+                $this->close_connection();
+            } catch (PDOException $e) {
+                die("UNABLE TO RUN QUERY");
+            }
+        }
+
+        public function query_fetch($query){
+            try {
+                $this->start_connection();
+                $res = $this->con->query($query);
+                $result = array();
+                while($row = $res->fetch()){
+                    array_push($result, $row);
+                }
+                $this->close_connection();
+                return $result;
+            } catch (PDOException $e) {
+                die("UNABLE TO FETCH");
+            }
+        }
+
+        public function set_db_host($db_host){
+            $this->db_host = $db_host;
+        }
+
+        public function get_db_host(){
+            return $this->db_host;
+        }
+        
+        public function set_dsn($dsn){
+            $this->dsn = $dsn;
+        }
+
+        public function get_dsn(){
+            return $this->dsn;
+        }
+
+        public function set_db_user($db_user){
+            $this->db_user = $db_user;
+        }
+
+        public function get_db_user(){
+            return $this->db_user;
+        }
+
+        public function set_db_pass($db_pass){
+            $this->db_pass = $db_pass;
+        }
+
+        public function get_db_pass(){
+            return $this->db_pass;
+        }
+
+        public function set_db_name($db_name){
+            $this->db_name = $db_name;
+        }
+
+        public function get_db_name(){
+            return $this->db_name;
+        }
+
+        public function get_con(){
+            return $this->con;
+        }
+
+    }
+
+?>

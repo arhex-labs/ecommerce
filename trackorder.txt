@@ -1,0 +1,255 @@
+
+<?php
+    require 'core/server.php';
+    define('MAIN_URL', 'http://192.168.1.27/test2/');
+    if(isset($_POST['track_order'])){
+        $id = $_POST['oid'];
+        $s_cond = array('orders_id'=>$id);
+        $status = $db->select('orders', NULL, $s_cond);
+    }
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/97897db37e.js" crossorigin="anonymous"></script>
+    <title>Track Order</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800,900&display=swap');
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        header{
+            position: relative;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            color: #fff;
+            font-weight: 400;
+            background: rgb(36, 76, 151);
+        }
+        li{
+            list-style: none;
+        }
+        .container{
+            padding: 30px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        .formBx{
+            width: 50%;
+        }
+        .inputBx{
+            margin-bottom: 20px;
+        }
+        .inputBx span{
+            font-size: 16px;
+            margin-bottom: 5px;
+            display: inline-block;
+            color: #607d8b;
+            font-family: 300;
+            letter-spacing: 1px;
+        }
+        .inputBx input, .inputBx button, .inputBx a{
+            width: 100%;
+            padding: 10px 20px;
+            outline: none;
+            font-weight: 400;
+            border: 1px solid #607d8b;
+            font-size: 16px;
+            letter-spacing: 1px;
+            color: #607d8b;
+            background: transparent;
+            border-radius: 30px;
+            display: block;
+        }
+        .inputBx button, .inputBx a{
+            background: rgb(52, 96, 177);
+            color: #ffffff;
+            outline: none;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        .inputBx button span{
+            color: #fff;
+        }
+        .inputBx button:hover{
+            background: rgb(36, 76, 151);
+        }
+        .inputBx p{
+            color: #607d8b;
+        }
+        h2{
+            color: #607d8b;
+            font-weight: 600;
+            font-size: 1.5em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-bottom: 4px solid rgb(52, 96, 177);
+            display: inline-block;
+            letter-spacing: 1px;
+        }
+        li{
+            background: #607d8b;
+            align-items: center;
+            display: flex;
+            font-size: 1.0rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        li img{
+            width: 40px;
+        }
+        li span{
+            padding: 20px;
+            margin-right: 40px;
+            display: flex;
+        }
+        li span:nth-child(3){
+            background: #fff;
+            color: #607d8b;
+            border-radius: 50%;
+        }
+
+        li span .fa, li span .fas{
+            width: 50px;
+            height: 50px;
+        }
+
+        span.img{
+            background: #fff;
+            border: 1px solid #ccc;
+        }
+
+.done{
+    background: rgb(36, 76, 151);
+}
+
+
+        @media (max-width: 768px){
+
+            .container{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                z-index: 1;
+                padding: 0;
+            }
+
+            .container .formBx{
+                width: 100%;
+                padding: 40px;
+                background: rgba(255, 255, 255, 0.9);
+                margin: 50px;
+            }
+
+            ul{
+                padding: 20px;
+            }
+
+        }
+    </style>
+</head>
+<body>
+    <header>Track Order</header>
+    <div class="container">
+        <div class="formBx">
+                <div class="inputBx">
+                    <span>Order ID</span>
+                    <input type="text" name="order_id" onkeyup="valid_numeric_input()" id="order_id" placeholder="Enter Order ID" required>
+                </div>
+                <div class="inputBx">
+                    <button onclick="track_order()"><span class="fas fa-search"></span> <span>Track Order</span></button>
+                </div>
+                <div class="inputBx">
+                    <a href="index.php">Go Back</a>
+                </div>
+                <?php
+                if(isset($_POST['track_order']) and empty($status)){
+                ?>
+                <div class="inputBx">
+                    <p>Invalid Order ID</p>
+                </div>
+                <?php
+                }
+                ?>
+        </div>
+    </div>
+    <form action="" id="tracker" method="post">
+        <input type="hidden" name="oid" id="oid">
+        <input type="hidden" name="track_order" value="now">
+    </form>
+    <?php
+    if(!empty($status)){
+    ?>
+
+    <div class="container">
+
+<?php
+    if($status[0]['orders_status'] == 3){
+        echo "<h2>Order Canceled</h2>";
+    } else {
+?>
+        <ul>
+            <li style="background: #fff;">
+                <h2 style="color: #607d8b;">Result</h2>
+            </li>
+            <li class="done">
+                <span class="img"><img src="<?php echo MAIN_URL; ?>placed.png" alt="Order In Review"></span>
+                <span>Order Placed</span>
+            </li>
+            <li <?php if($status[0]['orders_status'] >= 0){ ?> class="done" <?php } ?>>
+                <span class="img"><img src="<?php echo MAIN_URL; ?>review.png" alt="Order In Review"></span>
+                <span>In Review</span>
+                <?php if($status[0]['orders_status'] == 1 or $status[0]['orders_status'] == 0){ ?><span class="fa fa-refresh"></span><?php } ?>
+            </li>
+            <li <?php if($status[0]['orders_status'] > 1){ ?> class="done" <?php } ?>>
+                <span class="img"><img src="<?php echo MAIN_URL; ?>way.png" alt="Order Is On The Way"></span>
+                <span>On The Way</span>
+            </li>
+            <li <?php if($status[0]['orders_status'] >= 2){ ?> class="done" <?php } ?>>
+                <span class="img"><img src="<?php echo MAIN_URL; ?>done.png" alt="Order Delivered"></span>
+                <span>Delivered</span>
+                <?php if($status[0]['orders_status'] >= 2){ ?><span class="fas fa-check"></span><?php } ?>
+            </li>
+        </ul>
+        <?php
+    }
+    ?>
+    </div>
+    <?php
+                }
+                ?>
+
+    <script>
+        function track_order(){
+            var oid = document.getElementById('oid');
+            var tracker = document.getElementById('tracker');
+            if(oid.value != ""){
+                tracker.submit();
+            }
+        }
+        function valid_numeric_input(){
+            var id = document.getElementById('order_id');
+            var oid = document.getElementById('oid');
+            if(!isNaN(id.value)){
+                oid.value = id.value;
+            } else {
+                oid.value = '';
+            }
+        }
+    </script>
+</body>
+</html>

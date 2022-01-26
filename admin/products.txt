@@ -1,0 +1,81 @@
+<?php
+    $title = 'Products';
+    require 'header.php';
+?>
+        <main>
+            <div class="container">
+                <h3>Add Product</h3> <hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Product Title</span>
+                            <input type="text" name="title" placeholder="Product Name" required>
+                        </div>
+                        <div class="inputBx">
+                            <span>Product Price</span>
+                            <input type="number" name="price" placeholder="Product Price" required>
+                        </div>
+                        <div class="inputBx">
+                            <span>Product Quantity</span>
+                            <input type="number" name="qty" placeholder="Product Quantity" required>
+                        </div>
+                        <div class="inputBx">
+                            <span>Product Category</span>
+                            <select name="cat" required>
+                                <option value="">Select Category</option>
+                                <?php
+                                    $row = $db->select('categories');
+                                    foreach($row as $key){
+                                ?>
+                                    <option value="<?php echo $key['categories_id']; ?>"><?php echo $key['categories_title']; ?></option>
+                                <?php
+                                    }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="inputBx">
+                            <span>Product Description</span>
+                            <textarea name="details" id="" cols="40" rows="10" style="margin-bottom:12px; padding: 10px 14px; border: 1px solid #212121" placeholder="Product Description" required></textarea>
+                        </div>
+                        <div class="inputBx">
+                            <span>Product Image</span>
+                            <input type="file" name="image" id="image" title="Select Product Image" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="add_product" value="Add Product">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container">
+                <h3>View Product</h3><hr><br>
+                <?php
+                    $row = $db->select('products');
+                    foreach($row as $key){
+                ?>
+                <div class="entry" style="text-align: center;">
+                    <p><?php echo $key['products_title']; ?> (<?php echo get_value('categories' ,$key['products_category'], 'categories_title'); ?>)</p><hr><br>
+                    <img src="../img/<?php echo $key['products_image']; ?>" alt="products_image" width="150px"><br>
+                    <p>PKR <?php echo $key['products_price']; ?></p>
+                    <p><b>In Stock: </b> <?php echo $key['products_quantity']; ?></p>
+                    <form action="update_product.php" method="get">
+                        <input type="hidden" name="cat_id" value="<?php echo $key['products_id']; ?>">
+                        <button type="submit"><i class="fa fa-edit"></i></button>
+                    </form>
+                    <form action="" method="POST" onsubmit="return confirm('Delete Product?');">
+                        <input type="hidden" name="product_id" value="<?php echo $key['products_id']; ?>">
+                        <button name="delete_product" type="submit"><i class="fa fa-trash"></i></button>
+                    </form>
+                </div>
+                <?php
+                    }
+                ?>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

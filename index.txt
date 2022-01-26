@@ -1,0 +1,10 @@
+
+<?php
+    $title = "Home";
+    require "header.php";
+    require "banner.php";
+    require "cats.php";
+    require "featured.php";
+    require "trending.php";
+    require "footer.php";
+?>

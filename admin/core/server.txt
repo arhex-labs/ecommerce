@@ -1,0 +1,446 @@
+<?php
+    require "core/config.php";
+    require "core/MyDbHandler.php";
+    error_reporting(0);
+    session_start();
+
+    $db = new MyDbHandler(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $upload_file_name = '';
+
+    $path = $_SERVER['PHP_SELF'];
+    $page = basename($path, ".php");
+    if($page == 'login'){
+        //
+    } else if((!isset($_SESSION['logged']) || $_SESSION['logged'] != true) && ($page != 'login')){
+        header('LOCATION: login.php');
+    }
+
+    function clean($string) {
+        $string = str_replace(' ', '-', $string);
+        return preg_replace('/[^A-Za-z0-9\-]/', '', $string);
+    }
+
+
+    if(isset($_POST['login'])){
+        $username = clean($_POST['username']);
+        $password = clean($_POST['password']);
+        $password = md5($password);
+        $row = $db->query_fetch("SELECT * FROM users WHERE users_username = '$username' AND users_password = '$password'");
+        if(!empty($row)){
+            $_SESSION['logged'] = true;
+            $_SESSION['user-id'] = get_value('users', $username, 'users_id');
+            $_SESSION['user-name'] = $username;
+            $_SESSION['user-sid'] = get_value('users', $username, 'users_id');
+            header('LOCATION: index.php');
+        } else {
+            $error = 'Login Failed';
+        }
+    }
+
+    function upload_image($name){
+        global $upload_file_name;
+        $file_name = $_FILES[$name]['name'];
+        $file_tmp = $_FILES[$name]['tmp_name'];
+        $file_size = $_FILES[$name]['size'];
+        $file_type = $_FILES[$name]['type'];
+        $file_ext = strtolower(end(explode('.', $file_name)));
+        $extensions = array('jpeg', 'jpg', 'png');
+        if(in_array($file_ext,$extensions)=== false){
+            $error="extension not allowed, please choose a JPEG or PNG file.";
+        }
+        
+        if($file_size > 10097152){
+            $error='IMAGE size must be less than 10 MB.';
+        }
+        
+        if(empty($error)==true){
+            $file_name = date('d-m-y').rand(0,99999999).$file_name;
+            $upload_file_name = strtolower($file_name);
+            if(move_uploaded_file($file_tmp,"../img/".$upload_file_name)){
+                return 1;
+            }
+            $error = "Failed to move file.";
+            return 0;
+        }
+        return 0;
+    }
+
+    function get_value($table_name, $id, $field_name){
+        global $db;
+        $row = $db->query_fetch("SELECT * FROM ".$table_name." WHERE ".$table_name."_id = '".$id."'");
+        return $row[0][$field_name];
+    }
+    
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_category'])){
+        $row = $db->query_fetch("SELECT * FROM categories WHERE categories_title = '".strtolower($_POST['category'])."'");
+        if(empty($row)){
+            if(upload_image('image') != 0){
+                $data = array('categories_title'=>strtolower($_POST['category']), 'categories_image'=>$upload_file_name);
+                $db->insert('categories', $data);
+                $error = "Category Added.";
+            }
+        } else {
+            $error = "Category Already Exist With THis Name.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_category_name'])){
+        if(strtolower($_POST['category']) == strtolower($_POST['curr'])){
+            $error = "Old and New Title can not be same.";
+        }
+        $col = array('categories_title'=>strtolower($_POST['category']));
+        $condition = array('categories_id'=>strtolower($_POST['id']));
+        $row = $db->query_fetch("SELECT * FROM categories WHERE categories_title = '".strtolower($_POST['category'])."'");
+        if(empty($error) && !empty($row)){
+            $error = "Category Already Exist With THis Name.";
+        }
+        if(empty($error)){
+            $db->update('categories', $col, $condition);
+            $error = "Category Title Updated.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_category_image'])){
+        if(upload_image('image') != 0){
+            $col = array('categories_image'=>$upload_file_name);
+            $condition = array('categories_id'=>strtolower($_POST['id']));
+            if(empty($error)){
+                $db->update('categories', $col, $condition);
+                $error = "Category Image Updated.";
+                if($_POST['curr'] != ''){
+                    unlink('../img/'.strtolower($_POST['curr']));
+                }
+            }
+        } else {
+            $error = "IMage upload failed.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_category'])){
+        $condition = array('categories_id'=>$_POST['cat_id']);
+        $db->delete('categories', $condition);
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_product'])){
+        $row = $db->query_fetch("SELECT * FROM products WHERE products_title = '".strtolower($_POST['title'])."' AND products_category = '".strtolower($_POST['cat']."'"));
+        if(!empty($row)){
+            $error = "PRODUCT ALREADY EXIST.";
+        }
+        if(upload_image('image') != 0 && empty($error)){
+            $data = array(
+                'products_title'=>strtolower($_POST['title']), 
+                'products_price'=>strtolower($_POST['price']), 
+                'products_quantity'=>strtolower($_POST['qty']),
+                'products_category'=>strtolower($_POST['cat']),
+                'products_image'=>strtolower($upload_file_name),
+                'products_description'=>strtolower($_POST['details'])
+            );
+            $db->insert('products', $data);
+            $get_id = $db->query_fetch("SELECT * FROM products WHERE products_title = '".strtolower($_POST['title'])."' AND products_category = '".strtolower($_POST['cat'])."'");
+            $id = $get_id[0]['products_id'];
+            $data = array("selling_pro_id"=>$id, "selling_sold"=>0);
+            $db->insert('selling', $data);
+            $error = "Product Added.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_title'])){
+        if($_POST['curr'] == $_POST['title']){
+            $error = "Old and New Title can not be same.";
+        }
+        $row = $db->query_fetch("SELECT * FROM products WHERE products_title = '".$_POST['title']."'");
+        if(empty($row)){
+            $col = array("products_title"=>$_POST['title']);
+            $condition = array("products_id"=>$_POST['id']);
+            $db->update('products', $col, $condition);
+            $error = "Title Updated.";
+        } else {
+            $error = "TITLE NAME ALREADY EXIST.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_price'])){
+        $col = array("products_price"=>$_POST['price']);
+        $condition = array("products_id"=>$_POST['id']);
+        $db->update('products', $col, $condition);
+        $error = "Price Updated.";
+    }
+
+    if(isset($_POST['add_banner']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        if(upload_image('image') == 1){
+            $data = array('banners_link'=>strtolower($_POST['link']),'banners_image'=>$upload_file_name);
+            $db->insert('banners', $data);
+            $error = "Banner Added";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_banner'])){
+        $condition = array('banners_id'=>$_POST['banners_id']);
+        $db->delete('banners', $condition);
+    }
+
+    if(isset($_POST['update_product_qty']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("products_quantity"=>$_POST['qty']);
+        $condition = array("products_id"=>$_POST['id']);
+        $db->update('products', $col, $condition);
+        $error = "Quantity Updated.";
+    }
+
+    if(isset($_POST['update_product_desc']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("products_description"=>$_POST['details']);
+        $condition = array("products_id"=>$_POST['id']);
+        $db->update('products', $col, $condition);
+        $error = "Description Updated.";
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_image'])){
+        if(upload_image('image') != 0){
+            $col = array('products_image'=>$upload_file_name);
+            $condition = array("products_id"=>$_POST['id']);
+            if(empty($error)){
+                $db->update('products', $col, $condition);
+                $error = "Image Updated.";
+                if($_POST['curr'] != ''){
+                    unlink('../img/'.strtolower($_POST['curr']));
+                }
+            }
+        } else {
+            $error = "IMage upload failed.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_product'])){
+        $condition = array('cart_pro_id'=>$_POST['product_id']);
+        $db->delete('cart', $condition);
+        $condition = array('featured_pid'=>$_POST['product_id']);
+        $db->delete('featured', $condition);
+        $condition = array('product_colors_pro_id'=>$_POST['product_id']);
+        $db->delete('product_colors', $condition);
+        $condition = array('product_size_pro_id'=>$_POST['product_id']);
+        $db->delete('product_size', $condition);
+        $condition = array('product_image_pro_id'=>$_POST['product_id']);
+        $db->delete('product_image', $condition);
+        $condition = array('product_discount_pro_id'=>$_POST['product_id']);
+        $db->delete('product_discount', $condition);
+        $condition = array('selling_pro_id'=>$_POST['product_id']);
+        $db->delete('selling', $condition);
+        $condition = array('products_id'=>$_POST['product_id']);
+        $db->delete('products', $condition);
+    }
+
+    if(isset($_POST['edit_page_title']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("page_info_title"=>$_POST['data']);
+        $condition = array("page_info_id"=>$_POST['id']);
+        $db->update('page_info', $col, $condition);
+        $error = "Updated.";
+    }
+
+    if(isset($_POST['edit_page_address']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("page_info_address"=>$_POST['data']);
+        $condition = array("page_info_id"=>$_POST['id']);
+        $db->update('page_info', $col, $condition);
+        $error = "Updated.";
+    }
+
+    if(isset($_POST['edit_page_number']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("page_info_phone"=>$_POST['data']);
+        $condition = array("page_info_id"=>$_POST['id']);
+        $db->update('page_info', $col, $condition);
+        $error = "Updated.";
+    }
+
+    if(isset($_POST['edit_page_fb']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("page_info_fb"=>$_POST['data']);
+        $condition = array("page_info_id"=>$_POST['id']);
+        $db->update('page_info', $col, $condition);
+        $error = "Updated.";
+    }
+
+    if(isset($_POST['edit_page_insta']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("page_info_insta"=>$_POST['data']);
+        $condition = array("page_info_id"=>$_POST['id']);
+        $db->update('page_info', $col, $condition);
+        $error = "Updated.";
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_page_logo'])){
+        if(upload_image('image') != 0){
+            $col = array('page_info_logo'=>$upload_file_name);
+            $condition = array("page_info_id"=>$_POST['id']);
+            if(empty($error)){
+                $db->update('page_info', $col, $condition);
+                $error = "Image Updated.";
+                if($_POST['curr'] != ''){
+                    unlink('../img/'.strtolower($_POST['curr']));
+                }
+            }
+        } else {
+            $error = "IMage upload failed.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_featured'])){
+        $row = $db->query_fetch("SELECT * FROM featured WHERE featured_pid = '".$_POST['pro']."'");
+        if(!empty($row)){
+            $error = "PRODUCT ALREADY FEATURED.";
+        }
+        if(empty($error)){
+            $data = array(
+                'featured_pid'=>strtolower($_POST['pro'])
+            );
+            $db->insert('featured', $data);
+            $error = "Product Added.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_color'])){
+        $row = $db->query_fetch("SELECT * FROM product_colors WHERE product_colors_pro_id = '".$_POST['pro']."' AND product_colors_title = '".strtolower($_POST['color']."'"));
+        if(!empty($row)){
+            $error = "PRODUCT COLOR ALREADY EXIST.";
+        }
+        if(empty($error)){
+            $data = array(
+                'product_colors_pro_id'=>$_POST['pro'], 
+                'product_colors_title'=>strtolower($_POST['color'])
+            );
+            $db->insert('product_colors', $data);
+            $error = "Product Color Added.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_product_color'])){
+        $condition = array('product_colors_id'=>$_POST['id']);
+        $db->delete('product_colors', $condition);
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_size'])){
+        $row = $db->query_fetch("SELECT * FROM product_size WHERE product_size_pro_id = '".$_POST['pro']."' AND product_size_title = '".strtolower($_POST['size']."'"));
+        if(!empty($row)){
+            $error = "PRODUCT SIZE ALREADY EXIST.";
+        }
+        if(empty($error)){
+            $data = array(
+                'product_size_pro_id'=>$_POST['pro'], 
+                'product_size_title'=>strtolower($_POST['size'])
+            );
+            $db->insert('product_size', $data);
+            $error = "Product Size Added.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_product_size'])){
+        $condition = array('product_size_id'=>$_POST['id']);
+        $db->delete('product_size', $condition);
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_image'])){
+        if(upload_image('image') != 0 && empty($error)){
+            $data = array(
+                'product_image_pro_id'=>$_POST['pro'], 
+                'product_image_link'=>$upload_file_name
+            );
+            $db->insert('product_image', $data);
+            $error = "Product Image Added.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_product_image'])){
+        $condition = array('product_image_id'=>$_POST['id']);
+        $db->delete('product_image', $condition);
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_discount'])){
+        $row = $db->query_fetch("SELECT * FROM product_discount WHERE product_discount_pro_id = '".$_POST['pro']."' AND product_discount_title = '".strtolower($_POST['discount']."'"));
+        if(!empty($row)){
+            $error = "PRODUCT DISCOUNT ALREADY EXIST.";
+        }
+        if(empty($error)){
+            $data = array(
+                'product_discount_pro_id'=>$_POST['pro'], 
+                'product_discount_title'=>strtolower($_POST['discount'])
+            );
+            $db->insert('product_discount', $data);
+            $error = "Product DISCOUNT Added.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_product_discount'])){
+        $condition = array('product_discount_id'=>$_POST['id']);
+        $db->delete('product_discount', $condition);
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_featured'])){
+        $condition = array('featured_id'=>$_POST['id']);
+        $db->delete('featured', $condition);
+    }
+
+    if(isset($_POST['mark_as_pending']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("orders_status"=>'1');
+        $condition = array("orders_id"=>$_POST['id']);
+        $db->update('orders', $col, $condition);
+        $error = "Updated.";
+    }
+
+    if(isset($_POST['mark_as_delivered']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("orders_status"=>'2');
+        $condition = array("orders_id"=>$_POST['id']);
+        $db->update('orders', $col, $condition);
+        $error = "Updated.";
+    }
+
+    if(isset($_POST['mark_as_canceled']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("orders_status"=>'3');
+        $condition = array("orders_id"=>$_POST['id']);
+        $db->update('orders', $col, $condition);
+        $error = "Updated.";
+    }
+
+    if(isset($_POST['mark_as_returned']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
+        $col = array("orders_status"=>'4');
+        $condition = array("orders_id"=>$_POST['id']);
+        $db->update('orders', $col, $condition);
+        $error = "Updated.";
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])){
+        $row = $db->query_fetch("SELECT * FROM users WHERE users_username = '".$_POST['username']."'");
+        if(!empty($row)){
+            $error = "User Already Exist With This Username.";
+        }
+        if($_POST['password1'] != $_POST['password2']){
+            $error = "Passwords not matching.";
+        }
+        if(empty($error)){
+            $password = md5($_POST['password1']);
+            $data = array(
+                'users_username'=>$_POST['username'], 
+                'users_password'=>$password
+            );
+            $db->insert('users', $data);
+            $error = "User added.";
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_user'])){
+        $condition = array('users_id'=>$_POST['id']);
+        $db->delete('users', $condition);
+    }
+    
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])){
+        $row = $db->query_fetch("SELECT * FROM users WHERE users_username = '".$_SESSION['user-name']."' AND users_password = '".md5($_POST['password0'])."'");
+        if(!empty($row)){
+            if($_POST['password1'] == $_POST['password2']){
+                $password = md5($_POST['password1']);
+                $col = array("users_password"=>$password);
+                $condition = array("users_username"=>$_SESSION['user-name']);
+                $db->update('users', $col, $condition);
+                $error = "Password Updated.";
+            } else {
+                $error = 'Passwords not matching.';
+            }
+        } else {
+            $error = "OLD PASSWORD NOT CORRECT";
+        }
+    }
+
+?>

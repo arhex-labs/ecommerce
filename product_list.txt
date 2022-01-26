@@ -1,0 +1,26 @@
+
+
+
+    <div class="trending" id="products">
+        <?php
+            $condition = array('products_category'=>$_GET['category']);
+            $list = $db->select('products', NULL, $condition);
+            foreach($list as $l){
+        ?>
+        <a onclick="window.open('product_page.php?product=<?php echo $l['products_id']; ?>', '_self')">
+            <div class="item">
+                <div class="img">
+                    <img src="img/<?php echo $l['products_image']; ?>" alt="<?php echo $l['products_image']; ?>">
+                </div>
+                <div class="content">
+                    <p id="cat_name"><?php echo get_value('categories',$l['products_category'], 'categories_title'); ?></p>
+                    <p id="product_name"><?php echo $l['products_title']; ?></p>
+                    <p id="price"><?php echo $l['products_price']; ?> <span id="old_price"><strike>OLD PRICE</strike></span></p>
+                    <button onclick="window.open('product_page.php?product=<?php echo $l['products_id']; ?>', '_self')">View</button>
+                </div>
+            </div>
+        </a>
+        <?php
+            }
+        ?>
+    </div>

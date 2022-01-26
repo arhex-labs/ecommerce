@@ -1,0 +1,23 @@
+
+<?php
+$title = "Products";
+    require "header.php";
+    require "margin.php";
+?>
+    <div class="title">
+        <h2><?php echo get_value('categories', $_GET['category'], 'categories_title'); ?></h2>
+    </div>
+
+    <div class="filter_btn">
+        <button onclick="showFilter()">Add Filter &nbsp;<i class="fa fa-plus"></i></button>
+    </div>
+
+    <div class="filter" id="filter">
+        <label for="price"><b>Filter By Price: &nbsp;</b></label>
+        <input type="number" name="price" id="min-price" placeholder="Min">
+        <input type="number" name="max-price" id="max-price" placeholder="Max">
+    </div>
+<?php
+    require "product_list.php";
+    require "footer.php";
+?>

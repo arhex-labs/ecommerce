@@ -1,0 +1,63 @@
+
+
+<div class="sidebar">
+        <div class="sidebar-brand">
+            <h2><span class="fa fa-industry"></span> <span>ARHEX</span></h2>
+        </div>
+        <div class="sidebar-menu">
+            <ul>
+                <li>
+                    <a href="index.php">
+                        <span class="fa fa-home"></span>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a onclick="collapse('catis');">
+                        <span class="fa fa-list-alt"></span>
+                        <span>Categories</span>
+                    </a>
+                </li>
+                <li style="display: none" id="catis">
+                    <ul>
+                        <?php
+                            $catis = $db->select('categories');
+                            if(empty($catis)){
+                        ?>
+                        <li>
+                            <a>
+                                <span>Nothing to display</span>
+                            </a>
+                        </li>
+                        <?php
+                            } else {
+                                foreach($catis as $kiti){
+                        ?>
+                        <li>
+                            <a href="product.php?category=<?php echo $kiti['categories_id']; ?>">
+                                <span class="fas fa-caret-right"></span><span><?php echo $kiti['categories_title']; ?></span>
+                            </a>
+                        </li>
+                        <?php
+                                }
+                            }
+                        ?>
+                    </ul>
+                </li>
+                <li>
+                    <a href="trackorder.php">
+                        <span class="fa fa-truck"></span>
+                        <span>Track Order</span>
+                    </a>
+                </li>
+                <li>
+                <div class="container" id="searcher" style="width: 90%; background:none; margin: 0; padding: 0;">
+                    <div class="search-wrapper fff">
+                        <span class="fa fa-search"></span>
+                        <input type="text" name="search" id="searcher" placeholder="Search..." onkeypress="fetch_orders(this.value, 'search.php', 'data')" onkeyup="fetch_orders(this.value, 'search.php', 'data')">
+                    </div>
+                </div>
+                </li>
+            </ul>
+        </div>
+    </div>

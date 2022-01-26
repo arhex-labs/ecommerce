@@ -1,0 +1,10 @@
+
+<section id="trending" style="margin-top: 20px;">
+    <h3 class="heading">Most Selling Products</h3>
+</section>
+<script>
+    fetch_data('selling', 'tp.php', 'selling');
+</script>
+<div class="trending" id="selling">
+    
+</div>

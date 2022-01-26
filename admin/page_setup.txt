@@ -1,0 +1,142 @@
+<?php
+    $title = 'Update Product';
+    require 'header.php';
+    $row = $db->select('page_info');
+?>
+        <main>
+            <div class="container">
+                <h3>Site Title</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Site Title</span>
+                            <p><?php echo $row[0]['page_info_title']; ?></p>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Title</span>
+                            <input type="hidden" name="id" value="1">
+                            <input type="text" name="data" placeholder="Site Title" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="edit_page_title" value="Edit Title">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Site Logo</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Logo</span><br>
+                            <img src="../img/<?php echo $row[0]['page_info_logo']; ?>" alt="" width="220px">
+                        </div>
+                        <div class="inputBx">
+                            <span>New Logo</span>
+                            <input type="hidden" name="id" value="1">
+                            <input type="file" name="image" id="image" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="edit_page_logo" value="Edit Logo">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Office Address</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Address</span>
+                            <p><?php echo $row[0]['page_info_address']; ?></p>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Address</span>
+                            <input type="hidden" name="id" value="1">
+                            <input type="text" name="data" placeholder="Office Address" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="edit_page_address" value="Edit Address">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Phone Number</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Phone Number</span>
+                            <p><?php echo $row[0]['page_info_phone']; ?></p>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Phone Number</span>
+                            <input type="hidden" name="id" value="1">
+                            <input type="number" name="data" placeholder="Phone Number" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="edit_page_number" value="Edit Phone Number">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Facebook Page</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Facebook Page</span>
+                            <p><?php echo $row[0]['page_info_fb']; ?></p>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Facebook Page</span>
+                            <input type="hidden" name="id" value="1">
+                            <input type="url" name="data" placeholder="Facebook Link" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="edit_page_fb" value="Edit Link">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Instagram Page</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Instagram Page</span>
+                            <p><?php echo $row[0]['page_info_insta']; ?></p>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Instagram Page</span>
+                            <input type="hidden" name="id" value="1">
+                            <input type="url" name="data" placeholder="Instagram Link" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="edit_page_insta" value="Edit Link">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

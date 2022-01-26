@@ -1,0 +1,80 @@
+<?php
+    $title = 'Settings';
+    require 'header.php';
+?>
+        <main>
+            <div class="container">
+                <h3>Add User</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Username</span>
+                            <input type="text" name="username" placeholder="Enter Username" required>
+                        </div>
+                        <div class="inputBx">
+                            <span>Password</span>
+                            <input type="password" name="password1" placeholder="Enter Password" required>
+                        </div>
+                        <div class="inputBx">
+                            <span>Confirm Password</span>
+                            <input type="password" name="password2" placeholder="Confirm Password" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="add_user" value="Add User">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container">
+                <h3>View Users</h3><hr><br>
+                <?php
+                    $uname = $_SESSION['user-name'];
+                    $row = $db->query_fetch("SELECT * FROM users WHERE users_username <> '".$uname."' AND users_username <> 'admin'");
+                    foreach($row as $key){
+                ?>
+                <div class="entry" style="text-align: left;">
+                    <p style="text-transform: none;"><b>Username: </b><?php echo $key['users_username']; ?></p>
+                    <p style="text-transform: none;"><b>Password: </b><?php echo $key['users_password']; ?></p>
+                    <form action="" method="POST" onsubmit="return confirm('Delete User [<?php echo $key['users_username']; ?>]?');">
+                        <input type="hidden" name="id" value="<?php echo $key['users_id']; ?>">
+                        <button name="delete_user" value="delete" type="submit"><i class="fa fa-trash"></i> Delete</button>
+                    </form>
+                </div>
+                <?php
+                    }
+                ?>
+            </div>
+
+            <div class="container">
+                <h3>Change Password</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Old Password</span>
+                            <input type="password" name="password0" placeholder="Enter Old Password" required>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Password</span>
+                            <input type="password" name="password1" placeholder="Enter New Password" required>
+                        </div>
+                        <div class="inputBx">
+                            <span>Confirm Password</span>
+                            <input type="password" name="password2" placeholder="Confirm Password" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="change_password" value="Update Password">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

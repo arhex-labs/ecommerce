@@ -1,0 +1,108 @@
+
+<?php
+$title = "Product Page";
+    require "header.php";
+    require "margin.php";
+    $id = $_GET['product'];
+    $dis_cond = array('product_discount_pro_id'=>$id);
+    $dis_row = $db->select('product_discount', NULL, $dis_cond);
+    $row = $db->query_fetch('SELECT * FROM `products` WHERE products_id = '.$id."");
+?>
+    <div class="details">
+        <section>
+            <div class="main" id="main_image" style="background-image: url('img/<?php echo $row[0]['products_image']; ?>');"></div>
+            <div class="imgs">
+                <!-- <button class="left_btn"><i class="fa fa-arrow-left"></i></button> -->
+                <div class="demo">
+                    <img onclick="changeImage('img/<?php echo $row[0]['products_image']; ?>')" src="img/<?php echo $row[0]['products_image']; ?>" alt="">
+                    <?php
+                        $image_condition = array('product_image_pro_id'=>$id);
+                        $image = $db->select('product_image', NULL, $image_condition);
+                        foreach($image as $image_row){
+                    ?>
+                    <img onclick="changeImage('img/<?php echo $image_row['product_image_link'] ?>')" src="img/<?php echo $image_row['product_image_link'] ?>" alt="">
+                    <?php
+                        }
+                    ?>
+                </div>
+                <!-- <button class="right_btn"><i class="fa fa-arrow-right"></i></button> -->
+            </div>
+        </section>
+        <section>
+            <p><a style="color:#fff; text-decoration: none;" href="index.php">Home</a> <i class="fa fa-arrow-right"></i><a style="color:#fff; text-decoration: none;" href="product.php?category=<?php echo $row[0]['products_category']; ?>"><?php echo get_value('categories', $row[0]['products_category'], 'categories_title'); ?></a> <i class="fa fa-arrow-right"></i> <?php echo $row[0]['products_title']; ?></p>
+            <h3><?php echo $row[0]['products_title']; ?></h3>
+            <?php if(!empty($dis_row)){ ?><h1>Rs. <?php echo $row[0]['products_price'] - $dis_row[0]['product_discount_title']; ?> <sub><strike>Rs. <?php echo $row[0]['products_price']; ?></strike></sub><?php } else { ?><h1>Rs. <?php echo $row[0]['products_price']; ?><?php } ?></h1>
+            <?php
+                $color_cond = array('product_colors_pro_id'=>$id);
+                $color_row = $db->select('product_colors', NULL, $color_cond);
+                if(!empty($color_row)){
+            ?>
+            <div class="qty">
+                <label for="qty">
+                    <b>Select Color: </b>
+                </label>
+                <select name="color" id="color" onchange="setColor()">
+                    <option value="">Select Color</option>
+                    <?php
+                        foreach($color_row as $color_r){
+                    ?>
+                    <option value="<?php echo $color_r['product_colors_id']; ?>"><?php echo $color_r['product_colors_title']; ?></option>
+                    <?php
+                        }
+                    ?>
+                </select>
+            </div><br>
+            <?php
+                }
+            ?>
+            <?php
+                $size_cond = array('product_size_pro_id'=>$id);
+                $size_row = $db->select('product_size', NULL, $size_cond);
+                if(!empty($size_row)){
+            ?>
+            <div class="qty">
+                <label for="qty">
+                    <b>Select Size: </b>
+                </label>
+                <select name="size" id="size" onchange="setSize()">
+                    <option value="">Select Size</option>
+                    <?php
+                        foreach($size_row as $size_r){
+                    ?>
+                    <option value="<?php echo $size_r['product_size_id']; ?>"><?php echo $size_r['product_size_title']; ?></option>
+                    <?php
+                        }
+                    ?>
+                </select>
+            </div><br>
+            <?php
+                }
+            ?>
+            <div class="qty">
+                <button onclick="setQty(-1)"><i class="fa fa-arrow-down"></i></button>
+                <input type="text" name="qty" id="qty" value="1" readonly>
+                <button onclick="setQty(1)"><i class="fa fa-arrow-up"></i></button>
+            </div>
+            <form action="" method="post">
+                <input type="hidden" name="pid" value="<?php echo $id; ?>">
+                <input type="hidden" id="pro_qty" name="pqty" value="1">
+                <input type="hidden" id="pclr" name="pclr" value="">
+                <input type="hidden" id="psize" name="psize" value="">
+                &nbsp;&nbsp;&nbsp;<button type="submit" name="add_to_cart" value="add" class="add_cart"><i class="fa fa-shopping-cart"></i> ADD TO CART</button>
+            </form>
+        </section>
+    </div>
+
+
+    <div class="product_details">
+        <input type="checkbox" style="display: none;" name="detailbox" id="detailbox">
+        <nav>
+            <label for="detailbox" id="active" style="padding: 10px 14px;">Show Details</label>
+        </nav>
+        <div class="details_all" ><?php echo $row[0]['products_description']; ?></div>
+    </div>
+
+<?php
+    require "featured.php";
+    require "footer.php";
+?>

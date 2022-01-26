@@ -1,0 +1,20 @@
+<?php
+    $title = 'Dashboard';
+    require 'header.php';
+?>
+        <main>
+            <div class="entry" style="width: 100%;">
+                <button onclick="fetch_orders('0', 'ord.php', 'orders')">New Orders</button>
+                <button onclick="fetch_orders('1', 'ord.php', 'orders')">Pending Orders</button>
+                <button onclick="fetch_orders('2', 'ord.php', 'orders')">Delivered Orders</button>
+                <button onclick="fetch_orders('3', 'ord.php', 'orders')">Cancelled Orders</button>
+                <button onclick="fetch_orders('4', 'ord.php', 'orders')">Retured Orders</button>
+            </div>
+
+            <div class="entry" style="width: 100%;" id="orders">
+
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

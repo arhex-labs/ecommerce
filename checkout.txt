@@ -1,0 +1,27 @@
+
+<?php
+    $title = "Checkout";
+    require "header.php";
+    require "margin.php";
+    if(empty($_SESSION['cart'])){
+        header("LOCATION: index.php");
+    }
+?>
+<h3 class="heading">Checkout</h3>
+<div class="checkout">
+    <fieldset>
+<legend>Quick Order</legend>
+<form action="" method="post">
+    <input type="text" name="name" id="name" placeholder="Enter Name" required>
+    <input type="text" name="phone" placeholder="Enter Phone Number" required>
+    <input type="text" name="address" id="address" placeholder="Enter Address" required>
+    <input type="submit" value="Place Order" name="place_order">
+</form>
+</fieldset>
+</div>
+
+    <?php
+    require "footer.php";
+
+
+?>

@@ -1,0 +1,118 @@
+<?php
+    $title = 'Update Product';
+    require 'header.php';
+
+    $row = $db->query_fetch("SELECT * FROM products WHERE products_id = '".$_GET['cat_id']."'");
+?>
+        <main>
+            <div class="container">
+                <h3>Update Product Title</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Title</span>
+                            <input type="hidden" name="id" value="<?php echo $row[0]['products_id']; ?>">
+                            <input type="text" name="curr" placeholder="Product Name" value="<?php echo $row[0]['products_title']; ?>" readonly>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Title</span>
+                            <input type="text" name="title" placeholder="Update Product Name" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="update_product_title" value="Update Product Title">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Update Product Price</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Price</span>
+                            <input type="hidden" name="id" value="<?php echo $row[0]['products_id']; ?>">
+                            <input type="number" placeholder="Product Price" value="<?php echo $row[0]['products_price']; ?>" readonly>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Price</span>
+                            <input type="number" name="price" placeholder="Product Price" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="update_product_price" value="Update Product Price">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Update Product Quantity</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Quantity</span>
+                            <input type="hidden" name="id" value="<?php echo $row[0]['products_id']; ?>">
+                            <input type="number" placeholder="Product Quantity" value="<?php echo $row[0]['products_quantity']; ?>" readonly>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Quantity</span>
+                            <input type="number" name="qty" placeholder="Product Quantity" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="update_product_qty" value="Update Product Quantity">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Update Product Description</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Update Description</span>
+                            <input type="hidden" name="id" value="<?php echo $row[0]['products_id']; ?>">
+                            <textarea name="details" id="" cols="40" rows="10" style="margin-bottom:12px; padding: 10px 14px; border: 1px solid #212121" placeholder="Product Description" required><?php echo $row[0]['products_description']; ?></textarea>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="update_product_desc" value="Update Product Description">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Update Product Image</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Image</span><br>
+                                <input type="hidden" name="id" value="<?php echo $row[0]['products_id']; ?>">
+                            <input type="hidden" name="curr" value="<?php echo $row[0]['products_image']; ?>">
+                            <img name="curr" src="../img/<?php echo $row[0]['products_image']; ?>" style="width: 150px;">
+                        </div>
+                        <div class="inputBx">
+                            <span>New Image</span>
+                            <input type="file" name="image" id="image" title="Select Product Image" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="update_product_image" value="Update Product Image">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

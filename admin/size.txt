@@ -1,0 +1,64 @@
+<?php
+    $title = 'Size';
+    require 'header.php';
+?>
+        <main>
+            <div class="container">
+                <h3>Add Size</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Select Category</span>
+                            <select name="cat" id="cat" onchange="fetch_option(this.value, 'pro.php', 'pro')" required>
+                                <option value="">Select Category</option>
+                                <?php
+                                    $cat = $db->select('categories');
+                                    foreach($cat as $key){
+                                ?>
+                                    <option value="<?php echo $key['categories_id']; ?>"><?php echo $key['categories_title']; ?></option>
+                                <?php
+                                    }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="inputBx">
+                            <span>Select Product</span>
+                            <select name="pro" id="pro" required></select>
+                        </div>
+                        <div class="inputBx">
+                            <span>Size Title</span>
+                            <input type="text" name="size" id="size" placeholder="Size Title" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" value="Add Size" name="add_size">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container">
+                <h3>View Sizes</h3><hr><br>
+                <?php
+                    $row = $db->select('product_size');
+                    foreach($row as $key){
+                ?>
+                <div class="entry" style="text-align: center;">
+                    <p><b>Product Title: </b><?php echo get_value('products' ,$key['product_size_pro_id'], 'products_title'); ?></p>
+                    <p><b>Category Title: </b><?php echo get_value('categories', get_value('products' ,$key['product_size_pro_id'], 'products_category'), 'categories_title'); ?></p>
+                    <p><b>Size: </b><?php echo $key['product_size_title']; ?></p><br>
+                    <form action="" method="POST" onsubmit="return confirm('Delete Size?');">
+                        <input type="hidden" name="id" value="<?php echo $key['product_size_id']; ?>">
+                        <button name="delete_product_size" type="submit"><i class="fa fa-trash"></i></button>
+                    </form>
+                </div>
+                <?php
+                    }
+                ?>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

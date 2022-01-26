@@ -1,0 +1,49 @@
+<?php
+    $title = 'Banner';
+    require 'header.php';
+?>
+        <main>
+            <div class="container">
+                <h3>Add Banner</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>URL (Optional):</span>
+                            <input type="url" name="link" placeholder="Link for AD (Not Required)">
+                        </div>
+                        <div class="inputBx">
+                            <span>Select Image</span>
+                            <input type="file" name="image" id="image" title="Select Banner Image" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="add_banner" value="Add Banner">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container">
+                <h3>View Banners</h3><hr><br>
+                <?php
+                    $row = $db->select('banners');
+                    foreach($row as $key){
+                ?>
+                <div class="entry" style="text-align: center;">
+                    <p><b>URL: </b><a href="<?php echo $key['banners_link']; ?>"><?php echo $key['banners_link']; ?></a></p><hr><br>
+                    <img src="../img/<?php echo $key['banners_image']; ?>" alt="" width="200px"><br>
+                    <form action="" method="POST" onsubmit="return confirm('Delete Banner?');">
+                        <input type="hidden" name="banners_id" value="<?php echo $key['banners_id']; ?>">
+                        <button name="delete_banner" type="submit"><i class="fa fa-trash"></i></button>
+                    </form>
+                </div>
+                <?php
+                    }
+                ?>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

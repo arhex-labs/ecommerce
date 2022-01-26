@@ -1,0 +1,117 @@
+<?php
+    $title = 'Dashboard';
+    require 'header.php';
+    $oid = $_GET['orders_id'];
+    $con = array('orders_id'=>$oid);
+    $cs = array('cart_order_id'=>$oid);
+    $od = $db->select('orders', NULL, $con);
+    $cd = $db->select('cart', NULL, $cs);
+    $discout = 0;
+    $gt = 0;
+?>
+        <main>
+            <div class="entry" style="width: 100%;">
+                <h3>Order ID: <?php echo $oid; ?></h3><hr><br>
+                <p><b>Name: </b><?php echo $od[0]['orders_name']; ?></p>
+                <p><b>Phone: </b><?php echo $od[0]['orders_phone']; ?></p>
+                <p><b>Address: </b><?php echo $od[0]['orders_address']; ?></p>
+                <p><b>Order Status: </b><?php
+                if($od[0]['orders_status'] == '0'){
+                    echo 'New Order';
+                } else if($od[0]['orders_status'] == '1'){
+                    echo 'Pending Order';
+                } else if($od[0]['orders_status'] == '2'){
+                    echo 'Delivered';
+                } else if($od[0]['orders_status'] == '3'){
+                    echo 'Cancelled';
+                } else if($od[0]['orders_status'] == '4'){
+                    echo 'Returned';
+                }
+                 ?></p><hr><br>
+                <div class="scroll-x">
+                <table>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Color</th>
+                        <th>Size</th>
+                        <th>Price</th>
+                        <th>Discount</th>
+                    </tr>
+                <?php
+                    foreach($cd as $cart){
+                        $dcon = array('product_discount_pro_id'=>$cart['cart_pro_id']);
+                        $dres = $db->select('product_discount', NULL, $dcon);
+                        $dis = $dres[0]['product_discount_title'];
+                        $ppu = get_value('products', $cart['cart_pro_id'], 'products_price');
+                        $gt = $gt + ($ppu * $cart['cart_quantity']);
+                        $discout = $discout + ($dis * $cart['cart_quantity']);
+                ?>
+                <tr>
+                    <td><?php echo get_value('products', $cart['cart_pro_id'], 'products_title'); ?></td>
+                    <td><?php echo $cart['cart_quantity']; ?></td>
+                    <td><?php echo get_value('product_colors', $cart['cart_pro_color'], 'product_colors_title'); ?></td>
+                    <td><?php echo get_value('product_size', $cart['cart_pro_size'], 'product_size_title'); ?></td>
+                    <td><?php echo $ppu; ?></td>
+                    <td><?php echo $dis; ?></td>
+                </tr>
+                <?php
+                    }
+                ?>
+                <tr>
+                    <th colspan="5">Gross Total</th>
+                    <td><?php echo $gt; ?></td>
+                </tr>
+                <tr>
+                    <th colspan="5">Discount</th>
+                    <td><?php echo $discout; ?></td>
+                </tr>
+                <tr>
+                    <th colspan="5">Delivery Charges</th>
+                    <td><?php echo '200'; ?></td>
+                </tr>
+                <tr>
+                    <th colspan="5">Net Total</th>
+                    <td><?php echo $gt - $discout + 200; ?></td>
+                </tr>
+                </table>
+                </div>
+            </div>
+            <?php
+                if($od[0]['orders_status'] != '3' and $od[0]['orders_status'] != '4'){
+            ?>
+            <div class="entry" style="width: 100%;">
+                    <form action="" method="post" onsubmit="return confirm('Are you sure?');">
+                        <input type="hidden" name="id" value="<?php echo $oid; ?>">
+                        <?php
+                            if($od[0]['orders_status'] == '0'){
+                        ?>
+                        <input type="submit" value="Mark As Pending" name="mark_as_pending">
+                        <?php
+                            }
+                        ?>
+                        <?php
+                            if($od[0]['orders_status'] == '0' || $od[0]['orders_status'] == '1'){
+                        ?>
+                        <input type="submit" value="Mark As Delivered" name="mark_as_delivered">
+                        <input type="submit" value="Cancel Order" name="mark_as_canceled">
+                        <?php
+                            }
+                        ?>
+                        <?php
+                            if($od[0]['orders_status'] == '2'){
+                        ?>
+                        <input type="submit" value="Mark As Returned" name="mark_as_returned">
+                        <?php
+                            }
+                        ?>
+                        <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                    </form>
+            </div>
+            <?php
+                }
+            ?>
+        </main>
+<?php
+    require 'footer.php';
+?>

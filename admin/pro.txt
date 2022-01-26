@@ -1,0 +1,14 @@
+<?php
+    require "core/server.php";
+    $condition = array("products_category"=>$_GET['query']);
+        $row = $db->select('products', NULL, $condition);
+        if(empty($row)){
+            echo "";
+        }
+        foreach($row as $key){
+    ?>
+    <option value="<?php echo $key['products_id']; ?>"><?php echo $key['products_title']; ?></option>
+    <?php
+    
+        }
+    ?>

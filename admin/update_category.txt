@@ -1,0 +1,56 @@
+<?php
+    $title = 'Update Category';
+    require 'header.php';
+    $data = array('categories_id'=>$_GET['cat_id']);
+    $category = $db->select('categories', NULL, $data);
+?>
+        <main>
+            <div class="container">
+                <h3>Update Category Title</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Title</span>
+                            <input type="hidden" name="id" value="<?php echo $category[0]['categories_id']; ?>">
+                            <input type="text" name="curr" placeholder="Category Name" value="<?php echo $category[0]['categories_title']; ?>" readonly>
+                        </div>
+                        <div class="inputBx">
+                            <span>New Title</span>
+                            <input type="text" name="category" id="category" placeholder="Category Name" value="" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="edit_category_name" value="Update Category Title">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+                <h3>Update Category Image</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Current Image</span><br>
+                            <input type="hidden" name="id" value="<?php echo $category[0]['categories_id']; ?>">
+                            <input type="hidden" name="curr" value="<?php echo $category[0]['categories_image']; ?>">
+                            <img name="curr" src="../img/<?php echo $category[0]['categories_image']; ?>" style="width: 150px;">
+                        </div>
+                        <div class="inputBx">
+                            <span>New Image</span>
+                            <input type="file" name="image" id="image" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="edit_category_image" value="Update Category Image">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

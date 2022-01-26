@@ -1,0 +1,29 @@
+
+<?php
+    require "core/server.php";
+        $row = $db->select('featured', NULL, NULL, NULL, 'featured_pid', 'DESC', 4);
+        if(empty($row)){
+            echo "No Featured Products.";
+        }
+        foreach($row as $key){
+            $pro = $db->query_fetch('SELECT * FROM `products` WHERE products_id = '.$key['featured_pid']."");
+            $dis_cond = array('product_discount_pro_id'=>$pro[0]['products_id']);
+            $dis_row = $db->select('product_discount', NULL, $dis_cond);
+    ?>
+    <a href="product_page.php?product=<?php echo $pro[0]['products_id']; ?>">
+        <div class="item">
+            <div class="img">
+                <img src="img/<?php echo $pro[0]['products_image']; ?>" alt="">
+            </div>
+            <div class="content">
+                <p id="cat_name"><?php echo get_value('categories', $pro[0]['products_category'], 'categories_title'); ?></p>
+                <p id="product_name"><?php echo $pro[0]['products_title']; ?></p>
+                <p id="price"><?php if(!empty($dis_row)){ ?>Rs. <?php echo $pro[0]['products_price'] - $dis_row[0]['product_discount_title']; ?> <span id="old_price"><strike>Rs. <?php echo $pro[0]['products_price']; ?></strike></span><?php } else { ?>Rs. <?php echo $pro[0]['products_price']; ?><?php } ?></p>
+                <button><i class="fa fa-eye"></i> &nbsp; View</button>
+            </div>
+        </div>
+    </a>
+
+    <?php
+        }
+    ?>

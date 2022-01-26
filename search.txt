@@ -1,0 +1,32 @@
+
+
+    <?php
+        require 'core/server.php';
+        require "margin.php";
+        $name = $_GET['query'];
+    ?>
+    <h3 class="heading">Search</h3>
+    <div class="trending" id="products">
+    <?php
+        $row = $db->query_fetch("SELECT * FROM products WHERE products_title LIKE '%$name%'");
+        foreach($row as $key){
+            $dis_cond = array('product_discount_pro_id'=>$key['products_id']);
+            $dis_row = $db->select('product_discount', NULL, $dis_cond);
+    ?>
+        <a onclick="window.open('product_page.php?product=<?php echo $key['products_id']; ?>', '_self')">
+            <div class="item">
+                <div class="img">
+                    <img src="img/<?php echo $key['products_image']; ?>" alt="">
+                </div>
+                <div class="content">
+                    <p id="cat_name"><?php echo get_value('categories', $key['products_category'], 'categories_title'); ?></p>
+                    <p id="product_name"><?php echo $key['products_title']; ?></p>
+                    <p id="price"><?php if(!empty($dis_row)){ ?>Rs. <?php echo $key['products_price'] - $dis_row[0]['product_discount_title']; ?> <span id="old_price"><strike>Rs. <?php echo $key['products_price']; ?></strike></span><?php } else { ?>Rs. <?php echo $key['products_price']; ?><?php } ?></p>
+                    <button onclick="window.open('product_page.php?product=<?php echo $key['products_id']; ?>', '_self')">View</button>
+                </div>
+            </div>
+        </a>
+    <?php
+        }
+    ?>
+    </div>

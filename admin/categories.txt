@@ -1,0 +1,53 @@
+<?php
+    $title = 'Categories';
+    require 'header.php';
+?>
+        <main>
+            <div class="container">
+                <h3>Add Category</h3><hr><br>
+                <div class="formBx">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="inputBx">
+                            <span>Category Title</span>
+                            <input type="text" name="category" placeholder="Category Title" required>
+                        </div>
+                        <div class="inputBx">
+                            <span>Category Image</span>
+                            <input type="file" name="image" id="image" required>
+                        </div>
+                        <div class="inputBx">
+                            <input type="submit" name="add_category" value="Add Category">
+                        </div>
+                        <div class="inputBx">
+                            <p style="text-transform: uppercase;"><?php if(!empty($error)){ echo $error; } ?></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container">
+                <h3>View Categories</h3><hr><br>
+                <?php
+                    $row = $db->select('categories');
+                    foreach($row as $key){
+                ?>
+                <div class="entry" style="text-align: center;">
+                    <p><?php echo $key['categories_title']; ?></p><hr><br>
+                    <img src="../img/<?php echo $key['categories_image']; ?>" alt="categories_image" width="150px"><br>
+                    <form action="update_category.php" method="get">
+                        <input type="hidden" name="cat_id" value="<?php echo $key['categories_id']; ?>">
+                        <button type="submit"><i class="fa fa-edit"></i> Edit</button>
+                    </form>
+                    <form action="" method="POST" onsubmit="return confirm('Delete Category [<?php echo $key['categories_title']; ?>]?');">
+                        <input type="hidden" name="cat_id" value="<?php echo $key['categories_id']; ?>">
+                        <button name="delete_category" value="delete" type="submit"><i class="fa fa-trash"></i> Delete</button>
+                    </form>
+                </div>
+                <?php
+                    }
+                ?>
+            </div>
+        </main>
+<?php
+    require 'footer.php';
+?>

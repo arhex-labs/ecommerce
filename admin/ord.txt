@@ -1,0 +1,23 @@
+<?php
+    require "core/server.php";
+    $condition = array("orders_status"=>$_GET['query']);
+    $row = $db->select('orders', NULL, $condition);
+    if(empty($row)){
+        echo "";
+    }
+    foreach($row as $key){
+?>
+    <div class="entry">
+        <h3>Order ID: <?php echo $_GET['query']; ?></h3><hr><br>
+        <p><b>Name: </b><?php echo $key['orders_name']; ?></p>
+        <p><b>Phone: </b><?php echo $key['orders_phone']; ?></p>
+        <p><b>Address: </b><?php echo $key['orders_address']; ?></p>
+        <form action="view_order.php" method="get">
+            <input type="hidden" name="orders_id" value="<?php echo $key['orders_id']; ?>">
+            <input type="submit" value="View Order">
+        </form>
+    </div>
+<?php
+
+    }
+?>

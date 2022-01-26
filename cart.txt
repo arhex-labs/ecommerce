@@ -1,0 +1,72 @@
+
+<?php
+    $title = "Cart";
+    require "header.php";
+    require "margin.php";
+    if(empty($_SESSION['cart'])){
+        header("LOCATION: index.php");
+    }
+?>
+<h3 class="heading">Cart</h3>
+<div class="carts">
+<table class="cart-table">
+    <tr>
+        <th colspan="2">Product</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th style="text-align: left;">Quantity</th>
+        <th style="text-align: left;">Price</th>
+        <th style="text-align: center;">Remove</th>
+    </tr>
+<?php
+    $data = json_decode($_COOKIE['cart'], true);
+    $i = 1;
+    $gt = 0;
+    $discount = 0;
+    foreach($data as $key=>$value){
+?>
+    <tr>
+        <td><img src="img/<?php echo get_value('products', $data[$key][0], 'products_image'); ?>" class="cart-img" alt=""></td><td><?php echo get_value('products', $data[$key][0], 'products_title'); ?></td>
+        <td><?php echo get_value('product_colors', $data[$key][2], 'product_colors_title'); ?></td>
+        <td><?php echo get_value('product_size', $data[$key][3], 'product_size_title'); ?></td>
+        <td style="text-align: right;"><?php echo $data[$key][1]; ?></td>
+        <td style="text-align: right;"><?php echo get_value('products', $data[$key][0], 'products_price'); ?></td>
+        <td style="text-align: center;">
+            <form action="" method="post">
+                <button type="submit" name="delete_cart" value="<?php echo $key; ?>"><i class="fa fa-trash"></i></button>
+            </form>
+        </td>
+    </tr>
+<?php
+    $i++;
+    $gt = $gt + get_value('products', $data[$key][0], 'products_price') * $data[$key][1];
+    $discount = $discount + get_value('product_discount', $data[$key][0], 'product_discount_title');
+    }
+    ?>
+    <tr>
+        <td style="text-align: right; background: #f5f5f5;" colspan="6">Gross Total</td>
+        <td style="text-align: right;"><?php echo $gt; ?></td>
+    </tr>
+    <tr>
+        <td style="text-align: right; background: #f5f5f5;" colspan="6">Discount</td>
+        <td style="text-align: right;"><?php echo $discount; ?></td>
+    </tr>
+    <tr>
+        <td style="text-align: right; background: #f5f5f5;" colspan="6">Delivery Charges</td>
+        <td style="text-align: right;"><?php echo '200'; ?></td>
+    </tr>
+    <tr>
+        <td style="text-align: right; background: #f5f5f5;" colspan="6">Net Total</td>
+        <td style="text-align: right;"><?php echo $gt - $discount + 200; ?></td>
+    </tr>
+    </table>
+    </div>
+    <form class="cart-btn" action="" method="post" onsubmit="return confirm('Empty Cart?');">
+        <a href="checkout.php">Checkout</a>
+        <button type="submit" name="empty_cart" value="<?php echo $key; ?>"><i class="fa fa-empty"></i> Empty Cart</button>
+    </form>
+    <?php
+    require "footer.php";
+
+
+?>
