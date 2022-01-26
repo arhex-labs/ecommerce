@@ -11,8 +11,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
-    <?php if(date('G') > 5 and date('G') < 19){ ?><link rel="stylesheet" href="<?php echo MAIN_URL; ?>css/style.css"><?php } else { ?>
-    <link rel="stylesheet" href="<?php echo MAIN_URL; ?>css/style2.css"> <?php } ?>
+    <?php if(date('G') > 5 and date('G') < 19){ ?>
+        <style>
+            <?php require MAIN_URL."css/style.css"; ?>
+        </style>
+    <?php } else { ?>
+        <style>
+            <?php require MAIN_URL."css/style2.css"; ?>
+        </style>
+    <?php } ?>
     <title><?php echo $title; ?> | <?php echo $page_info[0]['page_info_title']; ?></title>
     <script src="<?php echo MAIN_URL; ?>js/main.js"></script>
 </head>
