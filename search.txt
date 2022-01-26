@@ -9,6 +9,9 @@
     <div class="trending" id="products">
     <?php
         $row = $db->query_fetch("SELECT * FROM products WHERE products_title LIKE '%$name%'");
+        if(empty($row)){
+            echo "No Products Found!";
+        }
         foreach($row as $key){
             $dis_cond = array('product_discount_pro_id'=>$key['products_id']);
             $dis_row = $db->select('product_discount', NULL, $dis_cond);
