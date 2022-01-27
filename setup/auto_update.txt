@@ -1,0 +1,91 @@
+<?php
+        $error = "";
+        require "admin/core/config.php";
+        $db_host = DB_HOST;
+        $db_user = DB_USER;
+        $db_pass = DB_PASS;
+        $db_name = DB_NAME;
+        $main_file = MAIN_FILE;
+        $con = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+        if($con){
+            $file = fopen('https://raw.githubusercontent.com/arhex-labs/ecommerce/main/setup/files', 'r') or die("Unable to open file");
+            echo "OPEN";
+            unlink('index.php');
+            $data = array();
+            $dirs = array();
+            // GET FILE DATA
+            while(!feof($file))
+                array_push($data, fgets($file));
+            
+            // GET ALL NAMES
+            foreach($data as $i)
+                array_push($dirs, explode('/',$i));
+            
+            // GET DIR NAMES
+            for($i = 0; $i < count($dirs); $i++)
+                $dirs[$i][count($dirs[$i]) - 1] = '';
+
+            // CREATE DIRECTORIES
+            foreach($dirs as $dir){
+                $path = '';
+                foreach($dir as $i){
+                    if(!empty($i))
+                        $path = $path . $i . '/';
+                    if(!file_exists($path))
+                        mkdir($path);
+                }
+            }
+            if(!file_exists('img')){
+                mkdir('img');
+            }
+
+            // CREATE FILES
+            foreach($data as $files){
+                $f = trim($files);
+                $page = explode('.', $f);
+                if(!file_exists($f)){
+                    $myfile = fopen($f, "w") or die("Unable to open file!");
+                    $dir_check = explode('/', $f);
+                    if(count($dir_check) > 1 and $dir_check[count($dir_check) - 2] == 'core'){
+                        $txt = "<?php\n
+                        require 'config.php';
+                        require MAIN_FILE.'".$page[0].".txt';
+                        ?>";
+                    } else {
+                        $txt = "<?php\n
+                        require 'core/config.php';
+                        require MAIN_FILE.'".$page[0].".txt';
+                        ?>";
+                    }
+                    fwrite($myfile, $txt);
+                    fclose($myfile);
+                }
+            }
+
+            // CREATE CONFIGURATION FILES
+            $myfile = fopen('admin/core/config.php', "w") or die("Unable to open file!");
+            $txt = "<?php\n
+            define('DB_HOST', '".$db_host."');
+            define('DB_USER', '".$db_user."');
+            define('DB_PASS', '".$db_pass."');
+            define('DB_NAME', '".$db_name."');
+            define('MAIN_FILE', '".MAIN_FILE."');
+            \n?>";
+            fwrite($myfile, $txt);
+            fclose($myfile);
+            $myfile = fopen('core/config.php', "w") or die("Unable to open file!");
+            $txt = "<?php\n
+            define('MAIN_FILE', '".MAIN_FILE."');
+            \n?>";
+            fwrite($myfile, $txt);
+            fclose($myfile);
+
+            header("LOCATION: index.php?delete_setup=delete");
+        } else {
+?>
+    <h1>WEBSITE UNDER MAINTAINANCE</h1>
+<?php
+        }
+
+
+?>
