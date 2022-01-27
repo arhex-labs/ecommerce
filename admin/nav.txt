@@ -4,12 +4,6 @@
         </div>
         <div class="sidebar-menu">
             <ul>
-                <li style="background: #000;">
-                    <a style="background: #000; color: 000; font-weight: bold;" href="setup.php">
-                        <span class="fab fa-instalod"></span>
-                        <span>Update Now</span>
-                    </a>
-                </li>
                 
                 <li>
                     <a href="index.php" class="active">
