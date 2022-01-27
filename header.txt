@@ -3,6 +3,11 @@
     require "core/server.php";
     define('MAIN_URL', 'https://raw.githubusercontent.com/arhex-labs/ecommerce/main/');
     $page_info = $db->select('page_info');
+    if(isset($_GET['delete_setup'])){
+        unlink('setup.php');
+        unlink('files');
+        unlink('continue.php');
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
