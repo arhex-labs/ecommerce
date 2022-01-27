@@ -16,6 +16,7 @@
         $txt = "<?php\n
         require 'core/config.php';
         require MAIN_FILE.'setup/auto_update.txt';
+        ?>";
         fwrite($myfile, $txt) or die("Unable to write file!");
         fclose($myfile) or die("Unable to close file!");
         ?>";
