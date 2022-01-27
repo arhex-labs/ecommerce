@@ -11,6 +11,18 @@
         if(file_exists('continue.php'))
         unlink('continue.php');
     }
+    if(isset($_GET['auto_update'])){
+        $myfile = fopen('setup.php', "w") or die("Unable to open file!");
+        $txt = "<?php\n
+        require 'core/config.php';
+        require MAIN_FILE.'setup/auto_update.txt';
+        fwrite($myfile, $txt);
+        fclose($myfile);
+        ?>";
+    }
+    if(file_exists('setup.php')){
+    //    header('LOCATION: setup.php');
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
