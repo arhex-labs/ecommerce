@@ -4,8 +4,11 @@
     define('MAIN_URL', 'https://raw.githubusercontent.com/arhex-labs/ecommerce/main/');
     $page_info = $db->select('page_info');
     if(isset($_GET['delete_setup'])){
+        if(file_exists('setup.php'))
         unlink('setup.php');
+        if(file_exists('files'))
         unlink('files');
+        if(file_exists('continue.php'))
         unlink('continue.php');
     }
 ?>
